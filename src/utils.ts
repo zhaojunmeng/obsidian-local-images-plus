@@ -3,7 +3,8 @@ import { fromBuffer } from "file-type";
 import isSvg from "is-svg";
 import filenamify from "filenamify";
 import Jimp from "jimp";
-import md5 from "crypto-js/md5";
+// import md5 from "crypto-js/md5";
+import { Md5 } from "ts-md5";
 const fs2 = require('fs').promises;
 import fs from "fs";
  
@@ -92,15 +93,20 @@ export function md5Sig(contentData: ArrayBuffer = undefined) {
 
   try {
 
-    var dec = new TextDecoder("utf-8");
-    const arrMid = Math.round(contentData.byteLength / 2);
-    const chunk = 15000;
-    const signature = md5([
-      contentData.slice(0, chunk),
-      contentData.slice(arrMid, arrMid + chunk),
-      contentData.slice(-chunk)
-    ].map(x => dec.decode(x)).join()
-    ).toString();
+    const md5 = new Md5();
+    md5.appendByteArray(new Uint8Array(contentData));
+    let signature = md5.end(false) as string;
+    signature = signature.toUpperCase();
+
+    // var dec = new TextDecoder("utf-8");
+    // const arrMid = Math.round(contentData.byteLength / 2);
+    // const chunk = 15000;
+    // const signature = md5([
+    //   contentData.slice(0, chunk),
+    //   contentData.slice(arrMid, arrMid + chunk),
+    //   contentData.slice(-chunk)
+    // ].map(x => dec.decode(x)).join()
+    // ).toString();
 
     return signature + "_MD5";
   }
